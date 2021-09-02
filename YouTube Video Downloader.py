@@ -3,7 +3,6 @@ import os
 from moviepy.editor import *
 
 
-#link = "https://www.youtube.com/watch?v=11CG88oR0Fg"
 download_path = os.path.dirname(os.path.realpath(__file__))
 
 def getfilewithextension(title,files=[]):
