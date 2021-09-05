@@ -6,9 +6,6 @@ from bs4 import BeautifulSoup
 import re
 
 
-#link = "https://www.youtube.com/watch?v=11CG88oR0Fg"
-
-#playlist = "https://www.youtube.com/playlist?list=PLvyTazcWChK8S7iF7XUG1XwnFfakh0PBf"
 download_path = os.path.dirname(os.path.realpath(__file__))
 
 def getfilewithextension(title,files=[]):
