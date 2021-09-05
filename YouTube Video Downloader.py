@@ -62,11 +62,15 @@ def get_playlist_videoes(purl):
     web = str(soup.prettify())
     links = re.findall(r"/watch..=...........\\.........\=..................................",web)
     links = list(set(links))
+    for i,li in enumerate(links):
+        links[i]="https://www.youtube.com"+str(li).split('\\')[0]
     return links
 
 def download_playlist():
     l = input("enter YouTube playlist URL you want to download : ")
     links = get_playlist_videoes(l)
+    for li in links:
+        print(li)
     isaudio = input("do you want to download this playlist as audio : ")
     quality = -1
     for link in links:
@@ -87,14 +91,14 @@ def download_playlist():
                 quality = int(input("enter number of quality you want to download : "))
         
         if(isaudio =='y' or isaudio=='Y'):
-            if(audio_streams.length<quality):
+            if(len(audio_streams)<quality):
                 video.getbestaudio().download(download_path)
             else:
                 audio_streams[quality - 1].download(download_path)
         else:
             video.getbestaudio().download(download_path)
             files = getfilewithextension(video_name)
-            if(video_streams.length<quality):
+            if(len(video_streams)<quality):
                 video.getbestvideo().download(download_path)
             else:
                 video_streams[quality - 1].download(download_path)
@@ -102,7 +106,7 @@ def download_playlist():
             combine_audio_video(files,video_name)
         
 
-choice = input("do you want to download a playlist")
+choice = input("do you want to download a playlist : ")
 if(choice == 'y' or choice == 'Y'):
     download_playlist()
 else:
