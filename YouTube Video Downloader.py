@@ -66,8 +66,6 @@ def get_playlist_videoes(purl):
 def download_playlist():
     l = input("enter YouTube playlist URL you want to download : ")
     links = get_playlist_videoes(l)
-    for li in links:
-        print(li)
     isaudio = input("do you want to download this playlist as audio : ")
     quality = -1
     for link in links:
