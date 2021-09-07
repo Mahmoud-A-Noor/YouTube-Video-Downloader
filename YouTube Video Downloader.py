@@ -19,19 +19,25 @@ def getfilewithextension(title,files=[]):
     return list
 
 def combine_audio_video(files):
-    with open(f'{download_path}\\{files[1]}') as videofile:
-        with open(f'{download_path}\\{files[0]}') as audiofile:
-            videoclip = VideoFileClip(videofile)
-            audioclip = AudioFileClip(audiofile)
-            video = videoclip.set_audio(audioclip)
-            if not os.path.exists(f'{download_path}\\output'):
-                os.makedirs(f'{download_path}\\output')
-            video.write_videofile(f'{download_path}\\output\\{files[1]}')
-    os.remove(f'{download_path}\\{files[0]}')
-    os.remove(f'{download_path}\\{files[1]}')
+    videoclip = VideoFileClip(f'{download_path}\{files[1]}')
+    audioclip = AudioFileClip(f'{download_path}\\{files[0]}')
+    video = videoclip.set_audio(audioclip)
+    if not os.path.exists(f'{download_path}\\output'):
+        os.makedirs(f'{download_path}\\output')
+    video.write_videofile(f'{download_path}\\output\\{files[1]}')
+    while True:
+        try:
+            myfile = open(f'{download_path}\\{files[1]}', "r+")
+            myfile.close()
+            os.remove(f'{download_path}\\{files[0]}')
+            os.remove(f'{download_path}\\{files[1]}')
+            break                             
+        except IOError:
+            pass
+        
 
 def download_single_video():
-    link = input("Enter YouTube video URL you want to download : ")
+    link = input("enter video YouTube URL you want to download : ")
     video = pafy.new(link)
     print(">>>>>>>>>>> Format <<<<<<<<<<<\n")
     print("1- Download as Audio")
