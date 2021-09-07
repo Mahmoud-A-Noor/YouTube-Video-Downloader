@@ -4,6 +4,7 @@ from moviepy.editor import *
 import requests
 from bs4 import BeautifulSoup
 import re
+import time
 
 
 download_path = os.path.dirname(os.path.realpath(__file__))
@@ -12,46 +13,58 @@ def getfilewithextension(title,files=[]):
     list = []
     for file in os.listdir(f'{download_path}\\'):
         if(file.startswith(title+".")):
-            if(file not in files):
+            if file not in files:
                 list.append(file)
+                break
     return list
 
-def combine_audio_video(files,title):
+def combine_audio_video(files):
     videoclip = VideoFileClip(f'{download_path}\\{files[1]}')
     audioclip = AudioFileClip(f'{download_path}\\{files[0]}')
     video = videoclip.set_audio(audioclip)
     if not os.path.exists(f'{download_path}\\output'):
         os.makedirs(f'{download_path}\\output')
     video.write_videofile(f'{download_path}\\output\\{files[1]}')
-    os.remove(f'{download_path}\\{files[0]}')
-    os.remove(f'{download_path}\\{files[1]}')
 
 def download_single_video():
     link = input("enter video YouTube URL you want to download : ")
     video = pafy.new(link)
-    isaudio = input("do you want to download this video as audio : ")
-    video_streams = video.videostreams
+    print(">>>>>>>>>>> Format <<<<<<<<<<<\n")
+    print("1- Download as Audio")
+    print("2- Download as Video")
+    isaudio = input(">> ")
+    os.system('cls')
+    video_streams = [i for i in video.videostreams if str(i).split('@')[0].split(':')[-1] != "webm"]
     audio_streams = video.audiostreams
     video_name = video.title
-
-    if(isaudio =='y' or isaudio=='Y'):
+    
+    print(">>>>>>>>>>> Choose Quality <<<<<<<<<<<\n")
+    if(isaudio == 1):
         for c,i in enumerate(audio_streams):
             print(f"{c+1}- {str(i).split('@')[-1]}   {str(i).split('@')[0].split(':')[-1]}")
         choice = int(input("enter number of quality you want to download : "))
+        os.system('cls')
     else:
         for c,i in enumerate(video_streams):
             print(f"{c+1}- {str(i).split('x')[-1]}   {str(i).split('@')[0].split(':')[-1]}")
         choice = int(input("enter number of quality you want to download : "))
+        os.system('cls')
     
-    if(isaudio =='y' or isaudio=='Y'):
+    if(isaudio == 1):
         audio_streams[choice - 1].download(download_path)
     else:
         video.getbestaudio().download(download_path)
         files = getfilewithextension(video_name)
         video_streams[choice - 1].download(download_path)
         files += getfilewithextension(video_name,files)
-        print(files)
-        combine_audio_video(files,video_name)
+        combine_audio_video(files)
+        time.sleep(0.1)
+        os.remove(f'{download_path}\\{files[0]}')
+        os.remove(f'{download_path}\\{files[1]}')
+        
+    print("the video has been successfully downloaded")
+    time.sleep(2)
+    os.system('cls')
 
 def get_playlist_videoes(purl):
     html_page = requests.get(purl)
@@ -65,44 +78,71 @@ def get_playlist_videoes(purl):
 
 def download_playlist():
     l = input("enter YouTube playlist URL you want to download : ")
+    os.system('cls')
     links = get_playlist_videoes(l)
-    isaudio = input("do you want to download this playlist as audio : ")
+    print(">>>>>>>>>>> Choose Format <<<<<<<<<<<\n")
+    print("1- Download as Audio")
+    print("2- Download as Video")
+    isaudio = input(">> ")
+    os.system('cls')
     quality = -1
     for link in links:
         video = pafy.new(link)
-        video_streams = video.videostreams
+        video_streams = [i for i in video.videostreams if str(i).split('@')[0].split(':')[-1] != "webm"]
         audio_streams = video.audiostreams
         video_name = video.title
 
-        if(isaudio =='y' or isaudio=='Y'):
+        if(isaudio == 1):
             if(quality == -1):
+                print(">>>>>>>>>>> Choose Quality <<<<<<<<<<<\n")
                 for c,i in enumerate(audio_streams):
                     print(f"{c+1}- {str(i).split('@')[-1]}   {str(i).split('@')[0].split(':')[-1]}")
                 quality = int(input("enter number of quality you want to download : "))
+                quality = audio_streams[quality-1]
+                os.system('cls')
         else:
             if(quality == -1):
+                print(">>>>>>>>>>> Choose Quality <<<<<<<<<<<\n")
                 for c,i in enumerate(video_streams):
                     print(f"{c+1}- {str(i).split('x')[-1]}   {str(i).split('@')[0].split(':')[-1]}")
                 quality = int(input("enter number of quality you want to download : "))
+                quality = str(video_streams[quality-1]).split('x')[-1]
+                os.system('cls')
         
-        if(isaudio =='y' or isaudio=='Y'):
-            if(len(audio_streams)<quality):
-                video.getbestaudio().download(download_path)
-            else:
-                audio_streams[quality - 1].download(download_path)
+        if(isaudio == 1):
+            found = False
+            for i in audio_streams:
+                if i==quality:
+                    i.download(download_path)
+                    found = True
+                    break
+            if not found:
+                print(f"Error the chosen quality for this video : {video_name} couldn't be found try to download it by choosing another quality using the Download YouTube Video option")
         else:
-            video.getbestaudio().download(download_path)
-            files = getfilewithextension(video_name)
-            if(len(video_streams)<quality):
-                video.getbestvideo().download(download_path)
-            else:
-                video_streams[quality - 1].download(download_path)
-            files += getfilewithextension(video_name,files)
-            combine_audio_video(files,video_name)
+            found = False
+            for i in video_streams:
+                if str(i).split('x')[-1]==quality:
+                    video.getbestaudio().download(download_path)
+                    files = getfilewithextension(video_name)
+                    i.download(download_path)
+                    files += getfilewithextension(video_name,files)
+                    combine_audio_video(files)
+                    time.sleep(0.1)
+                    os.remove(f'{download_path}\\{files[0]}')
+                    os.remove(f'{download_path}\\{files[1]}')
+                    found = True
+                    break
+            if not found:
+                print(f"Error the chosen quality for this video : {video_name} couldn't be found try to download it by choosing another quality using the Download YouTube Video option")
+    print("the playlist has been successfully downloaded")
         
-
-choice = input("do you want to download a playlist : ")
-if(choice == 'y' or choice == 'Y'):
-    download_playlist()
-else:
-    download_single_video()
+while True:
+    print(">>>>>>>>>>> YouTube Video Downloader <<<<<<<<<<<\n")
+    print("1- Download YouTube Playlist")
+    print("2- Download YouTube Video")
+    choice = int(input(">> "))
+    os.system('cls')
+    if choice == 1:
+        download_playlist()
+    elif choice == 2:
+        download_single_video()
