@@ -31,7 +31,7 @@ def combine_audio_video(files):
     os.remove(f'{download_path}\\{files[1]}')
 
 def download_single_video():
-    link = input("enter video YouTube URL you want to download : ")
+    link = input("Enter YouTube video URL you want to download : ")
     video = pafy.new(link)
     print(">>>>>>>>>>> Format <<<<<<<<<<<\n")
     print("1- Download as Audio")
