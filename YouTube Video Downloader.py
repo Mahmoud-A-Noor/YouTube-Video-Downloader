@@ -19,12 +19,16 @@ def getfilewithextension(title,files=[]):
     return list
 
 def combine_audio_video(files):
-    videoclip = VideoFileClip(f'{download_path}\\{files[1]}')
-    audioclip = AudioFileClip(f'{download_path}\\{files[0]}')
-    video = videoclip.set_audio(audioclip)
-    if not os.path.exists(f'{download_path}\\output'):
-        os.makedirs(f'{download_path}\\output')
-    video.write_videofile(f'{download_path}\\output\\{files[1]}')
+    with open(f'{download_path}\\{files[1]}') as videofile:
+        with open(f'{download_path}\\{files[0]}') as audiofile:
+            videoclip = VideoFileClip(videofile)
+            audioclip = AudioFileClip(audiofile)
+            video = videoclip.set_audio(audioclip)
+            if not os.path.exists(f'{download_path}\\output'):
+                os.makedirs(f'{download_path}\\output')
+            video.write_videofile(f'{download_path}\\output\\{files[1]}')
+    os.remove(f'{download_path}\\{files[0]}')
+    os.remove(f'{download_path}\\{files[1]}')
 
 def download_single_video():
     link = input("enter video YouTube URL you want to download : ")
@@ -58,9 +62,6 @@ def download_single_video():
         video_streams[choice - 1].download(download_path)
         files += getfilewithextension(video_name,files)
         combine_audio_video(files)
-        time.sleep(0.1)
-        os.remove(f'{download_path}\\{files[0]}')
-        os.remove(f'{download_path}\\{files[1]}')
         
     print("the video has been successfully downloaded")
     time.sleep(2)
@@ -127,9 +128,6 @@ def download_playlist():
                     i.download(download_path)
                     files += getfilewithextension(video_name,files)
                     combine_audio_video(files)
-                    time.sleep(0.1)
-                    os.remove(f'{download_path}\\{files[0]}')
-                    os.remove(f'{download_path}\\{files[1]}')
                     found = True
                     break
             if not found:
